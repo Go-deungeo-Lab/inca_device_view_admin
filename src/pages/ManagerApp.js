@@ -188,47 +188,39 @@ function ManagerApp() {
                 {/* 통계 카드 */}
                 <StatsCards stats={stats} devices={devices} />
 
-                {/* 필터 */}
-                <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
-                    <div className="flex flex-wrap gap-6 items-center">
-                        <div className="flex items-center space-x-3">
-                            <label className="text-sm font-semibold text-gray-700 flex items-center">
-                                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                                상태 필터:
-                            </label>
+                {/* 필터 - 간단하게 수정 */}
+                <div className="bg-white rounded-lg border p-4 mb-8">
+                    <div className="flex gap-6 items-center">
+                        <div className="flex items-center space-x-2">
+                            <label className="text-sm font-medium text-gray-700">상태:</label>
                             <select
                                 value={filter}
                                 onChange={(e) => setFilter(e.target.value)}
-                                className="px-4 py-2 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-all duration-200"
+                                className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
-                                <option value="all">🔘 전체</option>
-                                <option value="available">✅ 대여 가능</option>
-                                <option value="rented">🔴 대여 중</option>
+                                <option value="all">전체</option>
+                                <option value="available">대여 가능</option>
+                                <option value="rented">대여 중</option>
                             </select>
                         </div>
 
-                        <div className="flex items-center space-x-3">
-                            <label className="text-sm font-semibold text-gray-700 flex items-center">
-                                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                플랫폼 필터:
-                            </label>
+                        <div className="flex items-center space-x-2">
+                            <label className="text-sm font-medium text-gray-700">플랫폼:</label>
                             <select
                                 value={platformFilter}
                                 onChange={(e) => setPlatformFilter(e.target.value)}
-                                className="px-4 py-2 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-all duration-200"
+                                className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
-                                <option value="all">📱 전체</option>
-                                <option value="Android">🤖 Android</option>
-                                <option value="iOS">🍎 iOS</option>
+                                <option value="all">전체</option>
+                                <option value="Android">Android</option>
+                                <option value="iOS">iOS</option>
                             </select>
                         </div>
 
-                        <div className="flex items-center ml-auto">
-                            <div className="bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-2 rounded-xl border border-blue-200">
-                                <span className="text-sm font-semibold text-blue-700">
-                                    📊 {filteredDevices.length}개 디바이스 표시
-                                </span>
-                            </div>
+                        <div className="ml-auto">
+                            <span className="text-sm text-gray-600">
+                                {filteredDevices.length}개 디바이스 표시
+                            </span>
                         </div>
                     </div>
                 </div>

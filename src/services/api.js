@@ -1,0 +1,68 @@
+import axios from 'axios';
+
+// API 기본 URL
+const API_BASE_URL = 'https://incadeviceserver-production-9e3f.up.railway.app';
+
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// 디바이스 관련 API (관리자용)
+export const deviceAPI = {
+    // 모든 디바이스 조회 (대여자 정보 포함)
+    getAllDevices: () => api.get('/devices'),
+
+    // 대여 가능한 디바이스 조회
+    getAvailableDevices: () => api.get('/devices/available'),
+
+    // 대여 중인 디바이스 조회
+    getRentedDevices: () => api.get('/devices/rented'),
+
+    // 특정 디바이스 조회
+    getDevice: (id) => api.get(`/devices/${id}`),
+
+    // 디바이스 생성
+    createDevice: (deviceData) => api.post('/devices', deviceData),
+
+    // 디바이스 수정
+    updateDevice: (id, deviceData) => api.patch(`/devices/${id}`, deviceData),
+
+    // 디바이스 삭제
+    deleteDevice: (id) => api.delete(`/devices/${id}`),
+
+    // 디바이스 반납 (QA 비밀번호 필요)
+    returnDevice: (id, renterName, password) =>
+        api.post(`/devices/return/${id}`, { renterName, password }),
+};
+
+// 대여 관련 API (관리자용)
+export const rentalAPI = {
+    // 모든 대여 기록 조회
+    getAllRentals: () => api.get('/rentals'),
+
+    // 활성 대여 기록 조회
+    getActiveRentals: () => api.get('/rentals/active'),
+
+    // 반납된 대여 기록 조회
+    getReturnedRentals: () => api.get('/rentals/returned'),
+
+    // 대여 통계 조회
+    getRentalStats: () => api.get('/rentals/stats'),
+
+    // 플랫폼별 대여 통계
+    getRentalStatsByPlatform: () => api.get('/rentals/stats/platform'),
+
+    // 특정 사용자의 대여 기록
+    getRentalsByUser: (renterName) => api.get(`/rentals/renter/${renterName}`),
+
+    // 특정 디바이스의 대여 기록
+    getRentalsByDevice: (deviceId) => api.get(`/rentals/device/${deviceId}`),
+
+    // 대여 기록 삭제 (관리자용)
+    deleteRental: (id) => api.delete(`/rentals/${id}`),
+};
+
+export default api;

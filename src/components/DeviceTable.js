@@ -1,6 +1,6 @@
 import React from 'react';
 
-function DeviceTable({ devices, onEdit, onDelete, onReturn, onViewHistory }) {
+function DeviceTable({ devices, onEdit, onDelete, onReturn }) {
     return (
         <div className="bg-white rounded-lg shadow overflow-hidden">
             <table className="min-w-full">

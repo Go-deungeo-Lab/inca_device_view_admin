@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API 기본 URL
-const API_BASE_URL = 'https://incadeviceserver-production-9e3f.up.railway.app';
+// API 기본 URL - 환경변수에서 가져오기
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -9,6 +9,19 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
+
+// 응답 인터셉터 추가 - IP 차단 감지
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 403) {
+            // IP 차단된 경우 자동으로 차단 페이지로 리다이렉트
+            window.location.href = '/access-denied';
+            return Promise.reject(new Error('Access denied from this IP address'));
+        }
+        return Promise.reject(error);
+    }
+);
 
 // 디바이스 관련 API (관리자용)
 export const deviceAPI = {
@@ -32,6 +45,9 @@ export const deviceAPI = {
 
     // 디바이스 삭제
     deleteDevice: (id) => api.delete(`/devices/${id}`),
+
+    // 디바이스 대여
+    rentDevices: (rentData) => api.post('/devices/rent', rentData),
 
     // 디바이스 반납 (QA 비밀번호 필요)
     returnDevice: (id, renterName, password) =>

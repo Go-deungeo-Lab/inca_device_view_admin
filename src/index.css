@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CDN을 사용하므로 @tailwind 지시문 제거 */
 
 /* 다크모드 전환 애니메이션 */
 * {

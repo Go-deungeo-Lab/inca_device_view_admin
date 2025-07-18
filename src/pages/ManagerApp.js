@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { deviceAPI, rentalAPI } from '../services/api';
+import { deviceAPI, rentalAPI, authAPI } from '../services/api';
 import StatsCards from '../components/StatsCards';
 import DeviceTable from '../components/DeviceTable';
 import DeviceModal from '../components/DeviceModal';
@@ -10,6 +10,9 @@ function ManagerApp() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+    const [loginError, setLoginError] = useState('');
 
     // 모달 상태
     const [showDeviceModal, setShowDeviceModal] = useState(false);
@@ -22,8 +25,65 @@ function ManagerApp() {
     const [platformFilter, setPlatformFilter] = useState('all'); // 'all', 'Android', 'iOS'
 
     useEffect(() => {
-        fetchData();
+        checkAuthentication();
     }, []);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchData();
+        }
+    }, [isAuthenticated]);
+
+    // 인증 확인
+    const checkAuthentication = () => {
+        const token = localStorage.getItem('managerToken');
+        if (token) {
+            // 토큰 검증
+            authAPI.verifyToken(token)
+                .then(() => {
+                    setIsAuthenticated(true);
+                })
+                .catch(() => {
+                    localStorage.removeItem('managerToken');
+                    localStorage.removeItem('manager');
+                    setIsAuthenticated(false);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        } else {
+            setLoading(false);
+        }
+    };
+
+    // 로그인 처리
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoginError('');
+
+        try {
+            const response = await authAPI.login(loginForm);
+
+            // 토큰 저장
+            localStorage.setItem('managerToken', response.data.access_token);
+            localStorage.setItem('manager', JSON.stringify(response.data.user));
+
+            setIsAuthenticated(true);
+            setLoginForm({ username: '', password: '' });
+        } catch (error) {
+            console.error('로그인 실패:', error);
+            setLoginError('아이디 또는 비밀번호가 올바르지 않습니다.');
+        }
+    };
+
+    // 로그아웃 처리
+    const handleLogout = () => {
+        localStorage.removeItem('managerToken');
+        localStorage.removeItem('manager');
+        setIsAuthenticated(false);
+        setDevices([]);
+        setStats(null);
+    };
 
     const fetchData = async () => {
         try {
@@ -37,9 +97,13 @@ function ManagerApp() {
             setStats(statsResponse.data);
         } catch (error) {
             console.error('데이터 조회 실패:', error);
-            alert('데이터를 불러오는데 실패했습니다.');
+            if (error.response?.status === 401) {
+                // 인증 오류 시 로그아웃
+                handleLogout();
+            } else {
+                alert('데이터를 불러오는데 실패했습니다.');
+            }
         } finally {
-            setLoading(false);
             setRefreshing(false);
         }
     };
@@ -129,22 +193,76 @@ function ManagerApp() {
         }
     };
 
-    // 대여 기록 보기 (추후 구현)
-    const handleViewHistory = (device) => {
-        alert(`${device.productName}의 대여 기록 (구현 예정)`);
-    };
-
+    // 로딩 중
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64">
+            <div className="flex justify-center items-center min-h-screen">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <div className="text-lg text-gray-600">데이터를 불러오는 중...</div>
+                    <div className="text-lg text-gray-600">시스템을 로딩하는 중...</div>
                 </div>
             </div>
         );
     }
 
+    // 로그인 폼
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-gray-900">⚙️ 관리자 로그인</h2>
+                        <p className="text-gray-600 mt-2">디바이스 관리 시스템</p>
+                    </div>
+
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        {loginError && (
+                            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                                <p className="text-red-600 text-sm">{loginError}</p>
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                아이디
+                            </label>
+                            <input
+                                type="text"
+                                value={loginForm.username}
+                                onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="관리자 아이디"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                비밀번호
+                            </label>
+                            <input
+                                type="password"
+                                value={loginForm.password}
+                                onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="관리자 비밀번호"
+                                required
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                        >
+                            로그인
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+
+    // 관리자 대시보드
     return (
         <div className="min-h-screen bg-gray-50">
             {/* 헤더 */}
@@ -179,6 +297,13 @@ function ManagerApp() {
                                 <span className="mr-2 text-lg">➕</span>
                                 디바이스 추가
                             </button>
+
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                            >
+                                🚪 로그아웃
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -188,7 +313,7 @@ function ManagerApp() {
                 {/* 통계 카드 */}
                 <StatsCards stats={stats} devices={devices} />
 
-                {/* 필터 - 간단하게 수정 */}
+                {/* 필터 */}
                 <div className="bg-white rounded-lg border p-4 mb-8">
                     <div className="flex gap-6 items-center">
                         <div className="flex items-center space-x-2">
@@ -231,7 +356,6 @@ function ManagerApp() {
                     onEdit={handleEditDevice}
                     onDelete={handleDeleteDevice}
                     onReturn={handleReturnDevice}
-                    onViewHistory={handleViewHistory}
                 />
 
                 {/* 디바이스 추가/수정 모달 */}

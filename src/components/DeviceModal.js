@@ -97,15 +97,15 @@ function DeviceModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center z-50 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto transition-colors">
                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-semibold">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {device ? '디바이스 수정' : '디바이스 추가'}
                     </h3>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                         disabled={isLoading}
                     >
                         ✕
@@ -115,7 +115,7 @@ function DeviceModal({
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* 디바이스 번호 */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             디바이스 번호 *
                         </label>
                         <input
@@ -124,19 +124,21 @@ function DeviceModal({
                             value={formData.deviceNumber}
                             onChange={handleChange}
                             placeholder="예: 8, I-2"
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                errors.deviceNumber ? 'border-red-500' : 'border-gray-300'
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${
+                                errors.deviceNumber
+                                    ? 'border-red-500 dark:border-red-400'
+                                    : 'border-gray-300 dark:border-gray-600'
                             }`}
                             disabled={isLoading}
                         />
                         {errors.deviceNumber && (
-                            <p className="text-red-500 text-xs mt-1">{errors.deviceNumber}</p>
+                            <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.deviceNumber}</p>
                         )}
                     </div>
 
                     {/* 제품명 */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             제품명 *
                         </label>
                         <input
@@ -145,26 +147,28 @@ function DeviceModal({
                             value={formData.productName}
                             onChange={handleChange}
                             placeholder="예: Galaxy Note 9, iPhone XR"
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                errors.productName ? 'border-red-500' : 'border-gray-300'
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${
+                                errors.productName
+                                    ? 'border-red-500 dark:border-red-400'
+                                    : 'border-gray-300 dark:border-gray-600'
                             }`}
                             disabled={isLoading}
                         />
                         {errors.productName && (
-                            <p className="text-red-500 text-xs mt-1">{errors.productName}</p>
+                            <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.productName}</p>
                         )}
                     </div>
 
                     {/* 플랫폼 */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             플랫폼 *
                         </label>
                         <select
                             name="platform"
                             value={formData.platform}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                             disabled={isLoading}
                         >
                             <option value="Android">🤖 Android</option>
@@ -174,7 +178,7 @@ function DeviceModal({
 
                     {/* 모델명 */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             모델명
                         </label>
                         <input
@@ -183,14 +187,14 @@ function DeviceModal({
                             value={formData.modelName}
                             onChange={handleChange}
                             placeholder="예: SM-N960N, A2105"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                             disabled={isLoading}
                         />
                     </div>
 
                     {/* OS 버전 */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             OS 버전 *
                         </label>
                         <input
@@ -199,13 +203,15 @@ function DeviceModal({
                             value={formData.osVersion}
                             onChange={handleChange}
                             placeholder="예: 10.0, 14.6.0"
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                errors.osVersion ? 'border-red-500' : 'border-gray-300'
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${
+                                errors.osVersion
+                                    ? 'border-red-500 dark:border-red-400'
+                                    : 'border-gray-300 dark:border-gray-600'
                             }`}
                             disabled={isLoading}
                         />
                         {errors.osVersion && (
-                            <p className="text-red-500 text-xs mt-1">{errors.osVersion}</p>
+                            <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.osVersion}</p>
                         )}
                     </div>
 
@@ -217,10 +223,10 @@ function DeviceModal({
                                 name="isRootedOrJailbroken"
                                 checked={formData.isRootedOrJailbroken}
                                 onChange={handleChange}
-                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                                 disabled={isLoading}
                             />
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {formData.platform === 'iOS' ? '탈옥' : '루팅'} 상태
                             </span>
                         </label>
@@ -232,14 +238,14 @@ function DeviceModal({
                             type="button"
                             onClick={onClose}
                             disabled={isLoading}
-                            className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors disabled:opacity-50"
+                            className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors disabled:opacity-50"
                         >
                             취소
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                            className="flex-1 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50"
                         >
                             {isLoading ? '저장 중...' : (device ? '수정' : '추가')}
                         </button>

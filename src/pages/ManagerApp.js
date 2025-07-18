@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { deviceAPI, rentalAPI, authAPI } from '../services/api';
+import { useDarkMode } from '../contexts/DarkModeContext';
 import StatsCards from '../components/StatsCards';
 import DeviceTable from '../components/DeviceTable';
 import DeviceModal from '../components/DeviceModal';
 import ReturnModal from '../components/ReturnModal';
+import AdminRentalHistoryModal from '../components/AdminRentalHistoryModal';
 
 function ManagerApp() {
+    const { isDarkMode, toggleDarkMode } = useDarkMode();
     const [devices, setDevices] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -17,6 +20,7 @@ function ManagerApp() {
     // 모달 상태
     const [showDeviceModal, setShowDeviceModal] = useState(false);
     const [showReturnModal, setShowReturnModal] = useState(false);
+    const [showHistoryModal, setShowHistoryModal] = useState(false); // ✅ 이력 모달 추가
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [modalLoading, setModalLoading] = useState(false);
 
@@ -196,10 +200,10 @@ function ManagerApp() {
     // 로딩 중
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
+            <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <div className="text-lg text-gray-600">시스템을 로딩하는 중...</div>
+                    <div className="text-lg text-gray-600 dark:text-gray-300">시스템을 로딩하는 중...</div>
                 </div>
             </div>
         );
@@ -208,43 +212,54 @@ function ManagerApp() {
     // 로그인 폼
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center transition-colors">
+                <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 transition-colors">
+                    {/* 다크모드 토글 버튼 */}
+                    <div className="flex justify-end mb-4">
+                        <button
+                            onClick={toggleDarkMode}
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                            title={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
+                        >
+                            {isDarkMode ? '☀️' : '🌙'}
+                        </button>
+                    </div>
+
                     <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-900">⚙️ 관리자 로그인</h2>
-                        <p className="text-gray-600 mt-2">디바이스 관리 시스템</p>
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">⚙️ 관리자 로그인</h2>
+                        <p className="text-gray-600 dark:text-gray-300 mt-2">디바이스 관리 시스템</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-6">
                         {loginError && (
-                            <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                                <p className="text-red-600 text-sm">{loginError}</p>
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3">
+                                <p className="text-red-600 dark:text-red-400 text-sm">{loginError}</p>
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 아이디
                             </label>
                             <input
                                 type="text"
                                 value={loginForm.username}
                                 onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                                 placeholder="관리자 아이디"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 비밀번호
                             </label>
                             <input
                                 type="password"
                                 value={loginForm.password}
                                 onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                                 placeholder="관리자 비밀번호"
                                 required
                             />
@@ -252,7 +267,7 @@ function ManagerApp() {
 
                         <button
                             type="submit"
-                            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                            className="w-full px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                         >
                             로그인
                         </button>
@@ -264,25 +279,42 @@ function ManagerApp() {
 
     // 관리자 대시보드
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
             {/* 헤더 */}
-            <div className="bg-white shadow-sm border-b border-gray-200">
+            <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                                 ⚙️ 디바이스 관리 시스템
                             </h1>
-                            <p className="mt-1 text-sm text-gray-600">
+                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                                 관리자 전용 - 디바이스 관리 및 대여 현황
                             </p>
                         </div>
 
                         <div className="flex space-x-3">
+                            {/* 다크모드 토글 */}
+                            <button
+                                onClick={toggleDarkMode}
+                                className="flex items-center px-3 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                                title={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
+                            >
+                                {isDarkMode ? '☀️' : '🌙'}
+                            </button>
+
+                            {/* 대여 이력 버튼 */}
+                            <button
+                                onClick={() => setShowHistoryModal(true)}
+                                className="flex items-center px-4 py-2 bg-purple-600 dark:bg-purple-700 text-white rounded-md hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors"
+                            >
+                                📊 대여 이력
+                            </button>
+
                             <button
                                 onClick={fetchData}
                                 disabled={refreshing}
-                                className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+                                className="flex items-center px-4 py-2 bg-gray-500 dark:bg-gray-600 text-white rounded-md hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors disabled:opacity-50"
                             >
                                 <span className={`mr-2 ${refreshing ? 'animate-spin' : ''}`}>
                                     🔄
@@ -300,7 +332,7 @@ function ManagerApp() {
 
                             <button
                                 onClick={handleLogout}
-                                className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                                className="flex items-center px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded-md hover:bg-red-600 dark:hover:bg-red-500 transition-colors"
                             >
                                 🚪 로그아웃
                             </button>
@@ -314,14 +346,14 @@ function ManagerApp() {
                 <StatsCards stats={stats} devices={devices} />
 
                 {/* 필터 */}
-                <div className="bg-white rounded-lg border p-4 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-8 transition-colors">
                     <div className="flex gap-6 items-center">
                         <div className="flex items-center space-x-2">
-                            <label className="text-sm font-medium text-gray-700">상태:</label>
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">상태:</label>
                             <select
                                 value={filter}
                                 onChange={(e) => setFilter(e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                             >
                                 <option value="all">전체</option>
                                 <option value="available">대여 가능</option>
@@ -330,11 +362,11 @@ function ManagerApp() {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                            <label className="text-sm font-medium text-gray-700">플랫폼:</label>
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">플랫폼:</label>
                             <select
                                 value={platformFilter}
                                 onChange={(e) => setPlatformFilter(e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                             >
                                 <option value="all">전체</option>
                                 <option value="Android">Android</option>
@@ -343,7 +375,7 @@ function ManagerApp() {
                         </div>
 
                         <div className="ml-auto">
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-gray-600 dark:text-gray-300">
                                 {filteredDevices.length}개 디바이스 표시
                             </span>
                         </div>
@@ -374,6 +406,12 @@ function ManagerApp() {
                     device={selectedDevice}
                     onReturn={handleReturn}
                     isLoading={modalLoading}
+                />
+
+                {/* ✅ 대여 이력 모달 */}
+                <AdminRentalHistoryModal
+                    isOpen={showHistoryModal}
+                    onClose={() => setShowHistoryModal(false)}
                 />
             </main>
         </div>

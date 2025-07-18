@@ -7,58 +7,51 @@ function StatsCards({ devices, stats }) {
     const rentedDevices = devices?.filter(d => d.status === 'rented').length || 0;
 
     // stats 객체에서 추가 통계 (있는 경우)
-    const uniqueRenters = stats?.uniqueRenters || 0;
     const totalRentals = stats?.totalRentals || 0;
+    const activeRentals = stats?.activeRentals || 0;
 
     const cards = [
         {
             title: '전체 디바이스',
             value: totalDevices,
             color: 'text-blue-600',
-            bgColor: 'bg-blue-50',
-            borderColor: 'border-blue-200'
+            bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+            borderColor: 'border-blue-200 dark:border-blue-700'
         },
         {
             title: '대여 가능',
             value: availableDevices,
-            color: 'text-green-600',
-            bgColor: 'bg-green-50',
-            borderColor: 'border-green-200'
+            color: 'text-green-600 dark:text-green-400',
+            bgColor: 'bg-green-50 dark:bg-green-900/20',
+            borderColor: 'border-green-200 dark:border-green-700'
         },
         {
             title: '대여 중',
             value: rentedDevices,
-            color: 'text-red-600',
-            bgColor: 'bg-red-50',
-            borderColor: 'border-red-200'
+            color: 'text-red-600 dark:text-red-400',
+            bgColor: 'bg-red-50 dark:bg-red-900/20',
+            borderColor: 'border-red-200 dark:border-red-700'
         },
         {
             title: '총 대여 횟수',
             value: totalRentals,
-            color: 'text-purple-600',
-            bgColor: 'bg-purple-50',
-            borderColor: 'border-purple-200'
-        },
-        {
-            title: '고유 사용자',
-            value: uniqueRenters,
-            color: 'text-indigo-600',
-            bgColor: 'bg-indigo-50',
-            borderColor: 'border-indigo-200'
+            color: 'text-purple-600 dark:text-purple-400',
+            bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+            borderColor: 'border-purple-200 dark:border-purple-700'
         }
     ];
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {cards.map((card, index) => (
                 <div
                     key={index}
-                    className={`${card.bgColor} ${card.borderColor} border rounded-lg p-4 text-center transition-all hover:shadow-md`}
+                    className={`${card.bgColor} ${card.borderColor} border rounded-lg p-4 text-center transition-all hover:shadow-md bg-white dark:bg-gray-800`}
                 >
                     <div className={`text-2xl font-bold ${card.color} mb-1`}>
                         {card.value.toLocaleString()}
                     </div>
-                    <div className="text-sm text-gray-600 font-medium">
+                    <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
                         {card.title}
                     </div>
                 </div>

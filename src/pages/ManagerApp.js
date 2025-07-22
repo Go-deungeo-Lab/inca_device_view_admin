@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { deviceAPI, rentalAPI, authAPI } from '../services/api';
+import { deviceAPI, rentalAPI, authAPI, systemAPI } from '../services/api'; // 🆕 systemAPI 추가
 import { useDarkMode } from '../contexts/DarkModeContext';
 import StatsCards from '../components/StatsCards';
 import DeviceTable from '../components/DeviceTable';
 import DeviceModal from '../components/DeviceModal';
 import ReturnModal from '../components/ReturnModal';
 import AdminRentalHistoryModal from '../components/AdminRentalHistoryModal';
+import SystemConfigModal from '../components/SystemConfigModal'; // 🆕 추가
+import SystemStatusBanner from '../components/SystemStatusBanner'; // 🆕 추가
 
 function ManagerApp() {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
     const [devices, setDevices] = useState([]);
     const [stats, setStats] = useState(null);
+    const [systemStatus, setSystemStatus] = useState(null); // 🆕 시스템 상태
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,7 +23,8 @@ function ManagerApp() {
     // 모달 상태
     const [showDeviceModal, setShowDeviceModal] = useState(false);
     const [showReturnModal, setShowReturnModal] = useState(false);
-    const [showHistoryModal, setShowHistoryModal] = useState(false); // ✅ 이력 모달 추가
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [showSystemConfigModal, setShowSystemConfigModal] = useState(false); // 🆕 시스템 설정 모달
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [modalLoading, setModalLoading] = useState(false);
 
@@ -35,8 +39,19 @@ function ManagerApp() {
     useEffect(() => {
         if (isAuthenticated) {
             fetchData();
+            fetchSystemStatus(); // 🆕 시스템 상태 조회
         }
     }, [isAuthenticated]);
+
+    // 🆕 시스템 상태 조회
+    const fetchSystemStatus = async () => {
+        try {
+            const response = await systemAPI.getSystemStatus();
+            setSystemStatus(response.data);
+        } catch (error) {
+            console.error('시스템 상태 조회 실패:', error);
+        }
+    };
 
     // 인증 확인
     const checkAuthentication = () => {
@@ -87,6 +102,7 @@ function ManagerApp() {
         setIsAuthenticated(false);
         setDevices([]);
         setStats(null);
+        setSystemStatus(null); // 🆕 시스템 상태 초기화
     };
 
     const fetchData = async () => {
@@ -110,6 +126,24 @@ function ManagerApp() {
         } finally {
             setRefreshing(false);
         }
+    };
+
+    // 🆕 전체 데이터 새로고침 (시스템 상태 포함)
+    const handleRefreshAll = async () => {
+        await Promise.all([
+            fetchData(),
+            fetchSystemStatus()
+        ]);
+    };
+
+    // 🆕 시스템 설정 업데이트 후 콜백
+    const handleSystemConfigUpdated = () => {
+        fetchSystemStatus(); // 시스템 상태 다시 조회
+    };
+
+    // 🆕 시스템 상태 변경 시 콜백
+    const handleSystemStatusChange = (status) => {
+        setSystemStatus(status);
     };
 
     // 필터링된 디바이스 목록
@@ -303,6 +337,21 @@ function ManagerApp() {
                                 {isDarkMode ? '☀️' : '🌙'}
                             </button>
 
+                            {/* 🆕 시스템 설정 버튼 */}
+                            <button
+                                onClick={() => setShowSystemConfigModal(true)}
+                                className={`flex items-center px-4 py-2 rounded-md transition-colors ${
+                                    systemStatus?.isTestMode
+                                        ? 'bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-600'
+                                        : 'bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-600'
+                                }`}
+                            >
+                                <span className="mr-2">
+                                    {systemStatus?.isTestMode ? '🔴' : '⚙️'}
+                                </span>
+                                {systemStatus?.isTestMode ? '테스트 모드' : '시스템 설정'}
+                            </button>
+
                             {/* 대여 이력 버튼 */}
                             <button
                                 onClick={() => setShowHistoryModal(true)}
@@ -312,7 +361,7 @@ function ManagerApp() {
                             </button>
 
                             <button
-                                onClick={fetchData}
+                                onClick={handleRefreshAll} // 🆕 전체 새로고침
                                 disabled={refreshing}
                                 className="flex items-center px-4 py-2 bg-gray-500 dark:bg-gray-600 text-white rounded-md hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors disabled:opacity-50"
                             >
@@ -342,6 +391,11 @@ function ManagerApp() {
             </div>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* 🆕 시스템 상태 배너 */}
+                <SystemStatusBanner
+                    onStatusChange={handleSystemStatusChange}
+                />
+
                 {/* 통계 카드 */}
                 <StatsCards stats={stats} devices={devices} />
 
@@ -408,10 +462,17 @@ function ManagerApp() {
                     isLoading={modalLoading}
                 />
 
-                {/* ✅ 대여 이력 모달 */}
+                {/* 대여 이력 모달 */}
                 <AdminRentalHistoryModal
                     isOpen={showHistoryModal}
                     onClose={() => setShowHistoryModal(false)}
+                />
+
+                {/* 🆕 시스템 설정 모달 */}
+                <SystemConfigModal
+                    isOpen={showSystemConfigModal}
+                    onClose={() => setShowSystemConfigModal(false)}
+                    onConfigUpdated={handleSystemConfigUpdated}
                 />
             </main>
         </div>

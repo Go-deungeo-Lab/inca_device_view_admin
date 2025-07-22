@@ -122,4 +122,19 @@ export const authAPI = {
     verifyToken: (token) => api.post('/auth/verify', { token }),
 };
 
+// 🆕 시스템 관리 API
+export const systemAPI = {
+    // 🔓 공개 API - 시스템 상태 조회 (사용자용)
+    getSystemStatus: () => api.get('/system/status'),
+
+    // 🔒 관리자용 - 전체 시스템 설정 조회
+    getSystemConfig: () => adminApi.get('/system/config'),
+
+    // 🔒 관리자용 - 시스템 설정 업데이트
+    updateSystemConfig: (configData) => adminApi.put('/system/config', configData),
+
+    // 🔒 관리자용 - 테스트 모드 빠른 토글
+    toggleTestMode: () => adminApi.put('/system/test-mode/toggle'),
+};
+
 export default api;
